@@ -1,0 +1,72 @@
+<div class="min-h-full bg-gray-900 text-white" (click)="closeDropdownOutside($event)">
+  <nav class="bg-gray-800/50">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="flex h-16 items-center justify-between">
+        <div class="hidden md:block ml-10 flex items-baseline space-x-4">
+          <a routerLink="/dashboard" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:text-white">Dashboard</a>
+          <a routerLink="/social/config" class="rounded-md bg-gray-950/50 px-3 py-2 text-sm font-medium text-white">Configurar APIs</a>
+        </div>
+
+        <div class="flex items-center space-x-3">
+          <span class="text-gray-300 text-sm">Hola, {{ user?.name }}</span>
+          <div class="relative">
+            <button id="avatarBtn" (click)="toggleDropdown($event)">
+              <img [src]="user?.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?...'" class="h-8 w-8 rounded-full" />
+            </button>
+
+            <div id="dropdownMenu" class="hidden absolute right-0 mt-2 w-48 bg-gray-800 rounded-md shadow-lg py-1 z-50">
+              <button class="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-700">Editar Perfil</button>
+              <button (click)="logout()" class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-700">Cerrar sesión</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <header class="bg-gray-800 p-6">
+    <h1 class="text-3xl font-bold">Configuración de APIs</h1>
+    <p class="mt-2 text-gray-300">Configura tus credenciales para cada red social</p>
+  </header>
+
+  <main class="mx-auto max-w-4xl px-4 py-6">
+    <div class="bg-gray-800 rounded-lg p-6 mb-6">
+      <h2 class="text-xl font-semibold">Bienvenido, {{ user?.name }}</h2>
+      <p class="text-gray-300">Email: {{ user?.email }}</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div *ngFor="let provider of providers" class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center space-x-3">
+            <i [class]="provider.icon + ' text-2xl text-' + provider.color + '-400'"></i>
+            <div>
+              <h3 class="text-lg font-semibold">{{ provider.name }}</h3>
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                No configurado
+              </span>
+            </div>
+          </div>
+          <button (click)="showInstructions(provider.id)" class="text-gray-400 hover:text-gray-300">
+            <i class="fas fa-question-circle"></i>
+          </button>
+        </div>
+
+        <button class="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm font-medium">
+          Conectar
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal -->
+  <div id="instructionsModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
+    <div class="bg-gray-800 rounded-lg p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+      <div class="flex items-center justify-between mb-4">
+        <h3 id="instructionsTitle" class="text-lg font-semibold"></h3>
+        <button (click)="closeInstructions()" class="text-gray-400 hover:text-white"><i class="fas fa-times"></i></button>
+      </div>
+      <div id="instructionsContent" class="text-gray-300"></div>
+    </div>
+  </div>
+</div>
