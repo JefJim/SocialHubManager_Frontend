@@ -1,0 +1,40 @@
+<div class="auth-container">
+  <h1 class="text-1xl font-bold text-cyan-300">Crear cuenta</h1>
+
+  <form (ngSubmit)="onRegister()" #registerForm="ngForm">
+    <input
+      type="text"
+      name="username"
+      [(ngModel)]="user.username"
+      placeholder="Nombre de usuario"
+      required
+    />
+
+    <input
+      type="email"
+      name="email"
+      [(ngModel)]="user.email"
+      placeholder="Correo electrónico"
+      required
+    />
+
+    <input
+      type="password"
+      name="password"
+      [(ngModel)]="user.password"
+      placeholder="Contraseña"
+      required
+    />
+
+    <button type="submit" [disabled]="registerForm.invalid">
+      Registrarse
+    </button>
+
+    <p class="switch">
+      ¿Ya tienes una cuenta?
+      <a routerLink="/auth/login">Inicia sesión aquí</a>
+    </p>
+
+    <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
+  </form>
+</div>
