@@ -1,0 +1,20 @@
+<div class="bg-gray-900 min-h-screen flex items-center justify-center">
+  <div class="bg-gray-800 p-8 rounded-lg shadow-lg max-w-md w-full">
+    <h1 class="text-2xl font-bold text-white mb-6">Verificación en Dos Pasos</h1>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
+      <div>
+        <label for="token" class="block text-sm font-medium text-gray-300">
+          Ingresa el código de tu aplicación de autenticación
+        </label>
+        <input id="token" type="text" formControlName="token"
+               placeholder="000000"
+               class="mt-1 block w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none" />
+      </div>
+
+      <button type="submit" class="w-full py-2 px-4 bg-indigo-600 hover:bg-indigo-700 rounded-md text-white">
+        Verificar
+      </button>
+    </form>
+  </div>
+</div>
