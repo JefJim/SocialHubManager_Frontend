@@ -3,6 +3,8 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } 
 import { HttpClient } from '@angular/common/http';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { delay } from 'rxjs';
 
 @Component({
   selector: 'app-register',
@@ -20,7 +22,7 @@ export class Register {
 
   errorMessage: string = '';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private snackBar: MatSnackBar) { }
 
   onRegister() {
     if (!this.user.username || !this.user.email || !this.user.password) {
@@ -28,16 +30,16 @@ export class Register {
       return;
     }
 
-    // Aquí conectas con tu backend (ajusta el endpoint)
     this.http.post('http://localhost:5000/api/auth/register', this.user).subscribe({
       next: (res) => {
-        console.log('Usuario registrado:', res);
-        this.errorMessage = '';
-        alert('Registro exitoso ✅');
+        this.snackBar.open('✅ Registro exitoso, redirigiendo automaticamente al login', 'Cerrar', { duration: 3000 });
+        setTimeout(() => {
+          window.location.href = '/auth/login';
+        }, 3000);
       },
       error: (err) => {
-        console.error('Error en el registro:', err);
-        this.errorMessage = 'No se pudo registrar el usuario';
+        this.snackBar.open('❌ Error en el registro', 'Cerrar', { duration: 3000 });
+        console.error(err);
       }
     });
   }
