@@ -11,6 +11,6 @@ export const routes: Routes = [
   { path: 'auth/login', component: Login },
   { path: 'auth/register', component: Register },
   { path: 'pages/dashboard', component: Dashboard, canActivate: [AuthGuard] },
-  { path: 'auth/2fa/setup', component: TwoFactorSetup },
-  { path: 'auth/2fa/verify', component: TwoFactorVerify },
+  { path: '2fa/setup', component: TwoFactorSetup },
+  { path: '2fa/verify', component: TwoFactorVerify },
 ];
