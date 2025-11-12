@@ -1,20 +1,38 @@
-<div class="bg-gray-900 min-h-screen flex items-center justify-center">
-  <div class="bg-gray-800 p-8 rounded-lg shadow-lg max-w-md w-full">
-    <h1 class="text-2xl font-bold text-white mb-6">Verificación en Dos Pasos</h1>
+<div class="min-h-screen flex items-center justify-center bg-gray-900 text-white p-4">
+  <div class="bg-gray-800 rounded-lg shadow-lg w-full max-w-md p-6">
+    <h2 class="text-2xl font-bold mb-4 text-center">Verificación 2FA</h2>
+    <p class="text-gray-300 mb-6 text-center">
+      Ingresa el código de 6 dígitos generado por tu app de autenticación.
+    </p>
 
-    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
-      <div>
-        <label for="token" class="block text-sm font-medium text-gray-300">
-          Ingresa el código de tu aplicación de autenticación
-        </label>
-        <input id="token" type="text" formControlName="token"
-               placeholder="000000"
-               class="mt-1 block w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none" />
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+      <div class="mb-4">
+        <label for="ode" class="block text-gray-300 mb-2">Código de 6 dígitos</label>
+        <input
+          id="code"
+          type="text"
+          formControlName="Code"
+          maxlength="6"
+          class="w-full px-3 py-2 rounded-md text-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 background-white"
+          placeholder="Inserte el código"
+        />
+        <div *ngIf="form.get('code')?.invalid && form.get('code')?.touched" class="text-red-500 mt-1 text-sm">
+          <span *ngIf="form.get('code')?.errors?.['required']">El código es obligatorio.</span>
+          <span *ngIf="form.get('code')?.errors?.['pattern']">Debe ser un código de 6 dígitos.</span>
+        </div>
       </div>
 
-      <button type="submit" class="w-full py-2 px-4 bg-indigo-600 hover:bg-indigo-700 rounded-md text-white">
+      <button
+        type="submit"
+        [disabled]="form.invalid"
+        class="w-full bg-green-600 hover:bg-green-700 py-2 rounded-md font-semibold text-white transition-colors duration-200"
+      >
         Verificar
       </button>
     </form>
+
+    <p class="text-gray-400 mt-4 text-sm text-center">
+      Si no recibiste el código, revisa tu app de autenticación.
+    </p>
   </div>
 </div>
