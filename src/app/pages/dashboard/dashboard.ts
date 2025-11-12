@@ -24,7 +24,7 @@ interface ProviderConfig {
   selector: 'app-dashboard',
   imports: [CommonModule],
   templateUrl: './dashboard.html',
-  styleUrls: ['./dashboard.scss'] 
+  styleUrls: ['./dashboard.scss']
 })
 export class Dashboard implements OnInit {
   user: User | null = null;
@@ -34,26 +34,50 @@ export class Dashboard implements OnInit {
   constructor(private http: HttpClient, private router: Router) {}
 
   ngOnInit(): void {
-    // 1️⃣ Simulación inicial (luego conectar al backend)
-    this.user = {
-      id: 1,
-      name: 'Jefry',
-      email: 'jefry@example.com',
-      twoFactorEnabled: false,
-      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?...'
-    };
+    // Si no hay token, redirigir al login
+    const token = localStorage.getItem('token');
+    console.log('Token en dashboard: ', token);
+    if (!token) {
+      this.router.navigate(['/auth/login']);
+      return;
+    }
 
+    // Obtener información del usuario (el interceptor añade el token automáticamente)
+    this.http.get<User>('http://localhost:5000/api/auth/me').subscribe({
+      next: (res) => {
+        this.user = res;
+        console.log('Usuario cargado:', this.user);
+
+        // Cargar redes sociales conectadas
+        this.loadSocialConfigs();
+      },
+      error: (err) => {
+        console.error('Error al obtener info del usuario', err);
+        this.router.navigate(['/auth/login']);
+      }
+    });
+
+    // Definir proveedores disponibles
     this.providers = [
       { id: 'facebook', name: 'Facebook', icon: 'fab fa-facebook', color: 'blue' },
       { id: 'twitter', name: 'Twitter', icon: 'fab fa-twitter', color: 'sky' },
       { id: 'instagram', name: 'Instagram', icon: 'fab fa-instagram', color: 'pink' }
     ];
+  }
 
-    // 2️⃣ Llamada real al backend si existe endpoint /api/social/configs
-    // this.http.get('http://localhost:5000/api/social/configs').subscribe((data: any) => {
-    //   this.configs = data.configs;
-    //   this.user = data.user;
-    // });
+  loadSocialConfigs() {
+    this.http.get<any>('http://localhost:5000/api/social/configs').subscribe({
+      next: (res) => {
+        this.configs = {};
+        res.configs.forEach((item: any) => {
+          this.configs[item.provider] = {
+            isVerified: true,
+            displayName: item.displayName || ''
+          };
+        });
+      },
+      error: (err) => console.error('Error al obtener redes sociales', err)
+    });
   }
 
   toggleDropdown(event: Event): void {
@@ -71,26 +95,25 @@ export class Dashboard implements OnInit {
   }
 
   showInstructions(providerId: string): void {
-    this.http.get(`http://localhost:5000/api/auth/config/${providerId}/instructions`)
-      .subscribe({
-        next: (res: any) => {
-          const modal = document.getElementById('instructionsModal');
-          const title = document.getElementById('instructionsTitle');
-          const content = document.getElementById('instructionsContent');
+    this.http.get(`http://localhost:5000/api/auth/config/${providerId}/instructions`).subscribe({
+      next: (res: any) => {
+        const modal = document.getElementById('instructionsModal');
+        const title = document.getElementById('instructionsTitle');
+        const content = document.getElementById('instructionsContent');
 
-          if (title && content && modal) {
-            title.textContent = res.instructions.title;
-            content.innerHTML = `
-              <p class="text-gray-300 mb-4">${res.instructions.description}</p>
-              <ol class="list-decimal list-inside space-y-2">
-                ${res.instructions.steps.map((s: string) => `<li>${s}</li>`).join('')}
-              </ol>
-            `;
-            modal.classList.remove('hidden');
-          }
-        },
-        error: (err) => console.error('Error al cargar instrucciones', err)
-      });
+        if (title && content && modal) {
+          title.textContent = res.instructions.title;
+          content.innerHTML = `
+            <p class="text-gray-300 mb-4">${res.instructions.description}</p>
+            <ol class="list-decimal list-inside space-y-2">
+              ${res.instructions.steps.map((s: string) => `<li>${s}</li>`).join('')}
+            </ol>
+          `;
+          modal.classList.remove('hidden');
+        }
+      },
+      error: (err) => console.error('Error al cargar instrucciones', err)
+    });
   }
 
   closeInstructions(): void {
@@ -100,5 +123,16 @@ export class Dashboard implements OnInit {
   logout(): void {
     localStorage.clear();
     this.router.navigate(['/auth/login']);
+  }
+
+  goTo2FA(): void {
+    if (!this.user) return;
+
+    if (this.user.twoFactorEnabled) {
+      alert('Ya tienes la autenticación 2FA activada.');
+      
+    } else {
+      this.router.navigate(['/2fa/setup']);
+    }
   }
 }

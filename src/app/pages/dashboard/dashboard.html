@@ -3,20 +3,40 @@
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       <div class="flex h-16 items-center justify-between">
         <div class="hidden md:block ml-10 flex items-baseline space-x-4">
-          <a routerLink="/dashboard" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:text-white">Dashboard</a>
-          <a routerLink="/social/config" class="rounded-md bg-gray-950/50 px-3 py-2 text-sm font-medium text-white">Configurar APIs</a>
+          <a routerLink="/dashboard"
+            class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:text-white">Dashboard</a>
+          <a routerLink="/social/config"
+            class="rounded-md bg-gray-950/50 px-3 py-2 text-sm font-medium text-white">Configurar APIs</a>
         </div>
 
         <div class="flex items-center space-x-3">
           <span class="text-gray-300 text-sm">Hola, {{ user?.name }}</span>
           <div class="relative">
             <button id="avatarBtn" (click)="toggleDropdown($event)">
-              <img [src]="user?.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?...'" class="h-8 w-8 rounded-full" />
+              <img [src]="user?.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?...'"
+                class="h-8 w-8 rounded-full" />
             </button>
 
             <div id="dropdownMenu" class="hidden absolute right-0 mt-2 w-48 bg-gray-800 rounded-md shadow-lg py-1 z-50">
-              <button class="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-700">Editar Perfil</button>
-              <button (click)="logout()" class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-700">Cerrar sesión</button>
+              <button class="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-700">
+                Editar Perfil
+              </button>
+              <ng-container *ngIf="user">
+                <button *ngIf="!user.twoFactorEnabled; else active2fa" (click)="goTo2FA()"
+                  class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition">
+                  Configurar autenticación 2FA
+                </button>
+
+                <ng-template #active2fa>
+                  <button disabled
+                    class="inline-block bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium cursor-default">
+                    ✅ 2FA ACTIVO
+                  </button>
+                </ng-template>
+              </ng-container>
+              <button (click)="logout()" class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-700">
+                Cerrar sesión
+              </button>
             </div>
           </div>
         </div>
@@ -25,8 +45,25 @@
   </nav>
 
   <header class="bg-gray-800 p-6">
-    <h1 class="text-3xl font-bold">Configuración de APIs</h1>
+    <h1 class="text-3xl font-bold">Conecta tus redes</h1>
     <p class="mt-2 text-gray-300">Configura tus credenciales para cada red social</p>
+
+    <!-- 🔐 Botón para configuración 2FA -->
+    <div class="mt-4">
+      <ng-container *ngIf="user">
+        <button *ngIf="!user.twoFactorEnabled; else active2fa" (click)="goTo2FA()"
+          class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition">
+          Configurar autenticación 2FA
+        </button>
+
+        <ng-template #active2fa>
+          <button disabled
+            class="inline-block bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium cursor-default">
+            ✅ 2FA ACTIVO
+          </button>
+        </ng-template>
+      </ng-container>
+    </div>
   </header>
 
   <main class="mx-auto max-w-4xl px-4 py-6">
@@ -42,7 +79,8 @@
             <i [class]="provider.icon + ' text-2xl text-' + provider.color + '-400'"></i>
             <div>
               <h3 class="text-lg font-semibold">{{ provider.name }}</h3>
-              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+              <span
+                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                 No configurado
               </span>
             </div>
@@ -52,19 +90,29 @@
           </button>
         </div>
 
-        <button class="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm font-medium">
-          Conectar
+        <button *ngIf="configs[provider.id]; else connect"
+          class="w-full inline-block px-4 py-2 bg-gray-600 text-white rounded-md">
+          Conectado
         </button>
+        <ng-template #connect>
+          <a [href]="'/oauth/' + provider.id"
+            class="w-full inline-block px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md text-center">
+            Conectar
+          </a>
+        </ng-template>
       </div>
     </div>
   </main>
 
   <!-- Modal -->
-  <div id="instructionsModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
+  <div id="instructionsModal"
+    class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
     <div class="bg-gray-800 rounded-lg p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto">
       <div class="flex items-center justify-between mb-4">
         <h3 id="instructionsTitle" class="text-lg font-semibold"></h3>
-        <button (click)="closeInstructions()" class="text-gray-400 hover:text-white"><i class="fas fa-times"></i></button>
+        <button (click)="closeInstructions()" class="text-gray-400 hover:text-white">
+          <i class="fas fa-times"></i>
+        </button>
       </div>
       <div id="instructionsContent" class="text-gray-300"></div>
     </div>
